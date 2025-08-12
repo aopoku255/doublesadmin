@@ -382,7 +382,7 @@ const Calender = () => {
 
                       <div id="external-events">
                         <br />
-                        {/* <p className="text-muted">
+                        <p className="text-muted">
                           Drag and drop your event or click in the calendar
                         </p>
                         {categories &&
@@ -398,7 +398,7 @@ const Calender = () => {
                               <i className="mdi mdi-checkbox-blank-circle font-size-11 me-2" />
                               {category.title}
                             </div>
-                          ))} */}
+                          ))}
                       </div>
                     </CardBody>
                   </Card>

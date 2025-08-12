@@ -10,8 +10,27 @@ import { useDispatch, useSelector } from "react-redux";
 import { addEvent } from "../../slices/thunks";
 import axios from "axios";
 import { ToastContainer } from "react-toastify";
+import {
+  GoogleMap,
+  useJsApiLoader,
+  StandaloneSearchBox,
+} from "@react-google-maps/api";
+import { useRef } from "react";
 
 const CreateEvent = () => {
+  const { isLoaded } = useJsApiLoader({
+    id: "google-map-script",
+    googleMapsApiKey: "AIzaSyA7HjmbpODa6QsSiusofrZoGGGLBP9tCQI",
+    libraries: ["places", "marker", "maps"],
+  });
+
+  const inputRef = useRef(null);
+
+  const handleOnPlacesChanged = () => {
+    const places = inputRef.current.getPlaces();
+    console.log(places);
+  };
+
   const navigate = useNavigate();
   const baseUrl = axios.create({
     baseURL: "http://localhost:8080/api/v1",
@@ -151,12 +170,19 @@ const CreateEvent = () => {
             </div>
             <div className="mt-3">
               <Label className="form-label mb-0 mx-3">Location</Label>
-              <Input
-                placeholder="Add Event Location"
-                name="location"
-                onChange={handleChange}
-                value={eventDetails.location}
-              />
+              {isLoaded && (
+                <StandaloneSearchBox
+                  onLoad={(ref) => (inputRef.current = ref)}
+                  onPlacesChanged={handleOnPlacesChanged}
+                >
+                  <Input
+                    placeholder="Add Event Location"
+                    name="location"
+                    onChange={handleChange}
+                    value={eventDetails.location}
+                  />
+                </StandaloneSearchBox>
+              )}
             </div>
             <div className="mt-3">
               <Label className="form-label mb-0 mx-3">Event Host</Label>

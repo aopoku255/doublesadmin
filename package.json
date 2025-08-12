@@ -12,6 +12,7 @@
     "@fullcalendar/list": "^6.1.9",
     "@fullcalendar/multimonth": "^6.1.9",
     "@fullcalendar/react": "^6.1.9",
+    "@react-google-maps/api": "^2.20.7",
     "@reduxjs/toolkit": "^1.9.7",
     "@simonwep/pickr": "^1.9.0",
     "@testing-library/jest-dom": "^6.1.4",

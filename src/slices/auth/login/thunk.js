@@ -16,22 +16,15 @@ import {
 export const loginUser = (user, history) => async (dispatch) => {
   try {
     let response;
-    if (process.env.REACT_APP_DEFAULTAUTH === "firebase") {
-      let fireBaseBackend = getFirebaseBackend();
-      response = fireBaseBackend.loginUser(user.email, user.password);
-    } else if (process.env.REACT_APP_DEFAULTAUTH === "jwt") {
-      response = postJwtLogin({
-        email: user.email,
-        password: user.password,
-      });
-    } else if (process.env.REACT_APP_DEFAULTAUTH) {
-      response = postFakeLogin({
-        email: user.email,
-        password: user.password,
-      });
-    }
+
+    response = postFakeLogin({
+      email: user.email,
+      password: user.password,
+    });
 
     var data = await response;
+
+    console.log("Login Data", data);
 
     if (data) {
       sessionStorage.setItem("authUser", JSON.stringify(data));
@@ -40,7 +33,6 @@ export const loginUser = (user, history) => async (dispatch) => {
         finallogin = JSON.parse(finallogin);
         data = finallogin.data;
         if (finallogin.status === "Success") {
-          console.log(data);
           dispatch(loginSuccess(data));
           history("/events");
         } else {

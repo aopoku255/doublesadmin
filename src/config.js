@@ -9,6 +9,6 @@ module.exports = {
   },
   api: {
     // API_URL: "http://localhost:8080/api/v1",
-    API_URL: "https://doubles-462709.el.r.appspot.com/api/v1",
+    API_URL: "https://doubles-468713.uc.r.appspot.com/api/v1",
   },
 };

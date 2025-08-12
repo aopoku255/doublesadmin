@@ -100,7 +100,7 @@ const Login = (props) => {
       }, 3000);
     }
   }, [dispatch, errorMsg]);
-  document.title = "Basic SignIn | Velzon - React Admin & Dashboard Template";
+  document.title = "  Doubles Login";
   return (
     <React.Fragment>
       <ParticlesAuth>
