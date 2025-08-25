@@ -25,7 +25,9 @@ export const DELETE_EVENT = "/delete/event";
 
 // Chat
 export const GET_DIRECT_CONTACT = "/chat";
+export const GET_DIRECTS_CONTACT = "/questions";
 export const GET_MESSAGES = "/messages";
+export const GET_MESAGES = "/questions/allquestions";
 export const ADD_MESSAGE = "add/message";
 export const GET_CHANNELS = "/channels";
 export const DELETE_MESSAGE = "delete/message";

@@ -222,6 +222,13 @@ const Navdata = () => {
           ],
         }
       : {},
+    {
+      id: "questions",
+      label: "Questions",
+      icon: "ri-questionnaire-line",
+      link: "/apps-chat",
+      stateVariables: isDashboard,
+    },
 
     // {
     //   id: "apps",

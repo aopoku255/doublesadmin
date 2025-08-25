@@ -102,9 +102,13 @@ export const deleteEvent = (event) =>
 // get Contact
 export const getDirectContact = () => api.get(url.GET_DIRECT_CONTACT);
 
+export const getDirectsContact = () => api.get(url.GET_DIRECTS_CONTACT);
+
 // get Messages
 export const getMessages = (roomId) =>
   api.get(`${url.GET_MESSAGES}/${roomId}`, { params: { roomId } });
+
+export const getMesages = () => api.get(`${url.GET_MESAGES}`);
 
 // add Message
 export const addMessage = (message) => api.create(url.ADD_MESSAGE, message);
