@@ -40,7 +40,7 @@ const EventDetails = () => {
                 <CardBody>
                   <Col lg={12}>
                     <img
-                      src={`http://localhost:8080${event?.eventImages}`}
+                      src={event?.eventImages}
                       className="rounded-start img-fluid"
                       alt={event?.eventTitle}
                     />

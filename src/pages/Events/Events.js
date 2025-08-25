@@ -81,7 +81,7 @@ const Events = () => {
                         <Col md={5}>
                           <div>
                             <img
-                              src={`http://localhost:8080${event?.eventImages}`}
+                              src={event?.eventImages}
                               className="rounded-start img-fluid h-100"
                               alt={event?.eventTitle}
                             />
