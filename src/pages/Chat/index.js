@@ -62,7 +62,7 @@ const Chat = () => {
   const dispatch = useDispatch();
   const [isInfoDetails, setIsInfoDetails] = useState(false);
 
-  const [currentRoomId, setCurrentRoomId] = useState(1);
+  const [currentRoomId, setCurrentRoomId] = useState(0);
   const [messageBox, setMessageBox] = useState(null);
   const [curMessage, setcurMessage] = useState("");
   const [search_Menu, setsearch_Menu] = useState(false);
@@ -82,9 +82,10 @@ const Chat = () => {
   }));
   // Inside your component
   const { chats, messages, channels } = useSelector(chatProperties);
+  console.log("Chat Properties:", messages);
 
-  const [Chat_Box_Username, setChat_Box_Username] = useState("Andrews Opoku");
-  const [Chat_Box_Image, setChat_Box_Image] = useState(chats[0].image);
+  const [Chat_Box_Username, setChat_Box_Username] = useState("");
+  const [Chat_Box_Image, setChat_Box_Image] = useState("");
 
   //Toggle Chat Box Menus
   const toggleSearch = () => {
@@ -114,7 +115,7 @@ const Chat = () => {
     setChat_Box_Username(name);
     setCurrentRoomId(roomId);
     setChat_Box_Image(image);
-    dispatch(onGetMesages());
+    // dispatch(onGetMesages());
     if (window.innerWidth < 892) {
       userChatShow.current.classList.add("user-chat-show");
     }
@@ -360,7 +361,7 @@ const Chat = () => {
                                           " userprofile"
                                         }
                                       >
-                                        {chat.name.charAt(0)}
+                                        {chat?.name?.charAt(0)}
                                       </div>
                                     )}
                                   </div>
@@ -632,8 +633,8 @@ const Chat = () => {
                                 <li
                                   className={
                                     message.sender === Chat_Box_Username
-                                      ? " chat-list left"
-                                      : "chat-list right"
+                                      ? " chat-list right"
+                                      : "chat-list left"
                                   }
                                   key={key}
                                 >

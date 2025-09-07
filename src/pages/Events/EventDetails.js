@@ -70,9 +70,16 @@ const EventDetails = () => {
                       <i className="ri-time-line mx-2"></i>
                       {event?.eventStartTime}
                     </p>
-                    <p className="fw-bold">
-                      <span className="ms-2">Host:</span>
-                      <span className="ms-2">{event?.eventHost}</span>
+                    <p className="">
+                      <span className="ms-2 fw-bold">Speakers</span>
+                      <ul className="ms-2">
+                        {event?.eventHost?.split(",").map((host, index) => (
+                          <li key={index}>
+                            {host.trim()}
+                            <br />
+                          </li>
+                        ))}
+                      </ul>
                     </p>
 
                     <h6>Description</h6>

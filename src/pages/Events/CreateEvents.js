@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Button, Input, Label } from "reactstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Button,
+  Input,
+  Label,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "reactstrap";
 import Flatpickr from "react-flatpickr";
 import { useQuill } from "react-quilljs";
 import "quill/dist/quill.snow.css";
@@ -7,15 +18,21 @@ import { Link, useNavigate } from "react-router-dom";
 import { FilePond } from "react-filepond";
 import "filepond/dist/filepond.min.css";
 import { useDispatch, useSelector } from "react-redux";
-import { addEvent } from "../../slices/thunks";
+import {
+  addEvent,
+  createEventSpeakers,
+  getEventSpeakers,
+} from "../../slices/thunks";
 import axios from "axios";
 import { ToastContainer } from "react-toastify";
+import Select from "react-select";
 import {
   GoogleMap,
   useJsApiLoader,
   StandaloneSearchBox,
 } from "@react-google-maps/api";
 import { useRef } from "react";
+import { Loader } from "feather-icons-react/build/IconComponents";
 
 const CreateEvent = () => {
   const { isLoaded } = useJsApiLoader({
@@ -28,7 +45,19 @@ const CreateEvent = () => {
 
   const handleOnPlacesChanged = () => {
     const places = inputRef.current.getPlaces();
-    console.log(places);
+    if (places && places.length > 0) {
+      const place = places[0];
+      console.log(place);
+      // You can choose what you want to store
+      const formattedAddress =
+        `${place.name} ${place.formatted_address}` || place.name;
+
+      // Update your form state with the selected location
+      setEventDetails((prev) => ({
+        ...prev,
+        location: formattedAddress,
+      }));
+    }
   };
 
   const navigate = useNavigate();
@@ -38,6 +67,8 @@ const CreateEvent = () => {
   const user = useSelector((state) => state?.Login?.user);
   const { quillRef, quill } = useQuill();
   const [files, setFiles] = useState(null);
+  const [addEventLoading, setAddEventLoading] = useState(false);
+
   const dispatch = useDispatch();
 
   const [eventDetails, setEventDetails] = useState({
@@ -45,7 +76,7 @@ const CreateEvent = () => {
     startDate: "",
     endDate: "",
     location: "",
-    eventHost: "",
+    eventHost: [],
     eventDescription: "",
     eventImages: "",
     adminId: "",
@@ -55,20 +86,32 @@ const CreateEvent = () => {
   });
 
   const handleChange = (e, fieldName) => {
+    // For react-select (multi or single)
+    if (fieldName === "eventHost") {
+      setEventDetails((prevDetails) => ({
+        ...prevDetails,
+        eventHost: e, // e is an array of selected options if isMulti={true}
+      }));
+      return;
+    }
+
+    // For Flatpickr (date picker)
     if (Array.isArray(e)) {
       setEventDetails((prevDetails) => ({
         ...prevDetails,
         [fieldName]: e[0], // Capture date from Flatpickr
       }));
-    } else {
-      const { name, type, value, files } = e.target;
-      setEventDetails((prevDetails) => ({
-        ...prevDetails,
-        [name]: type === "file" ? files[0] : value, // Correctly set file object
-      }));
-      if (type === "file") {
-        setFiles(files[0]); // Also update the `files` state
-      }
+      return;
+    }
+
+    // For normal inputs and files
+    const { name, type, value, files } = e.target;
+    setEventDetails((prevDetails) => ({
+      ...prevDetails,
+      [name]: type === "file" ? files[0] : value,
+    }));
+    if (type === "file") {
+      setFiles(files[0]); // Also update the `files` state
     }
   };
 
@@ -88,6 +131,7 @@ const CreateEvent = () => {
     setFiles(files.map((file) => file.file));
   }
   const handleSubmit = async () => {
+    setAddEventLoading(true);
     const extractTime = (dateTime) => {
       const date = new Date(dateTime);
       return date.toTimeString().split(" ")[0]; // Extract time in HH:MM:SS format
@@ -97,14 +141,66 @@ const CreateEvent = () => {
     const endTime = extractTime(eventDetails.endDate);
     const details = {
       ...eventDetails,
+      eventHost: eventDetails?.eventHost.map((opt) => opt.label).join(", "),
       eventImages: files,
       adminId: user?.id,
       eventStartTime: startTime,
       eventEndTime: endTime,
     };
 
-    dispatch(addEvent(details, navigate));
+    dispatch(addEvent(details, navigate))
+      .then(() => {
+        setAddEventLoading(false);
+      })
+      .catch(() => {
+        setAddEventLoading(false);
+      });
   };
+
+  const [openSpeakerModal, setOpenSpeakerModal] = useState(false);
+  const [eventSpeakers, setEventSpeakers] = useState([]);
+
+  const handleCreateNewSpeaker = () => {
+    setOpenSpeakerModal(true);
+  };
+
+  const [createSpeakerData, setCreateSpeakerData] = useState({
+    speakerName: "",
+    speakerDesignation: "",
+  });
+  const [createSpeakerLoading, setCreateSpeakerLoading] = useState(false);
+
+  const handleCreateSpeakerChange = (e) => {
+    const { name, value } = e.target;
+    setCreateSpeakerData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleCreateSpeakerSubmit = () => {
+    setCreateSpeakerLoading(true);
+    dispatch(createEventSpeakers(createSpeakerData))
+      .then(() => {
+        setCreateSpeakerLoading(false);
+      })
+      .catch(() => {
+        setCreateSpeakerLoading(false);
+      });
+
+    setCreateSpeakerData({
+      speakerName: "",
+      speakerDesignation: "",
+    });
+
+    setOpenSpeakerModal(false);
+  };
+
+  useEffect(() => {
+    dispatch(getEventSpeakers());
+  }, [dispatch]);
+
+  const speakers = useSelector((state) => state?.Events?.eventSpeakers);
 
   return (
     <div className="page-content">
@@ -185,13 +281,28 @@ const CreateEvent = () => {
               )}
             </div>
             <div className="mt-3">
-              <Label className="form-label mb-0 mx-3">Event Host</Label>
-              <Input
-                placeholder="Add Event Host"
-                name="eventHost"
-                onChange={handleChange}
-                value={eventDetails.eventHost}
-              />
+              <Label className="form-label mb-0 mx-3">Speakers/Host</Label>
+              <div className="input-group">
+                <Select
+                  name="eventHost"
+                  value={eventDetails.eventHost}
+                  onChange={(selected) => handleChange(selected, "eventHost")}
+                  isMulti={true}
+                  isClearable={true}
+                  className="form-control form-control-sm"
+                  options={speakers.map((speaker) => ({
+                    value: speaker.speakerName,
+                    label: `${speaker.speakerName} - ${speaker.speakerDesignation}`,
+                  }))}
+                />
+
+                <button
+                  className="btn btn-dark mt-0"
+                  onClick={handleCreateNewSpeaker}
+                >
+                  Create new
+                </button>
+              </div>
             </div>
             <div className="mt-3 mb-5">
               <Label className="form-label mb-0 mx-3">Event Description</Label>
@@ -206,11 +317,46 @@ const CreateEvent = () => {
               color="dark"
               outline
             >
+              {addEventLoading ? <Loader /> : ""}
               Create Event
             </Button>
           </Col>
         </Row>
       </Container>
+      <Modal
+        centered
+        isOpen={openSpeakerModal}
+        toggle={() => setOpenSpeakerModal(!openSpeakerModal)}
+      >
+        <ModalHeader toggle={() => setOpenSpeakerModal(!openSpeakerModal)}>
+          Create New Speaker
+        </ModalHeader>
+        <ModalBody>
+          <Input
+            type="text"
+            placeholder="Speaker Name"
+            name="speakerName"
+            onChange={handleCreateSpeakerChange}
+          />
+          <Input
+            type="select"
+            placeholder="Speaker Designation"
+            className="mt-3 form-select"
+            name="speakerDesignation"
+            onChange={handleCreateSpeakerChange}
+          >
+            <option value="">Select Designation</option>
+            <option value="host">Host</option>
+            <option value="speaker">Speaker</option>
+          </Input>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="dark" onClick={handleCreateSpeakerSubmit}>
+            {createSpeakerLoading ? <Loader /> : ""}
+            Add Speaker
+          </Button>
+        </ModalFooter>
+      </Modal>
     </div>
   );
 };

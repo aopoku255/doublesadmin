@@ -77,6 +77,11 @@ export const getAllEvents = () => api.get(url.GET_ALL_EVENTS);
 
 export const getPastEvents = () => api.get(url.GET_PAST_EVENTS);
 
+export const getEventSpeakers = () => api.get(url.GET_EVENT_SPEAKERS);
+
+export const createEventSpeakers = (data) =>
+  api.create(url.CREATE_EVENT_SPEAKERS, data);
+
 // get Events
 export const getCategories = () => api.get(url.GET_CATEGORIES);
 

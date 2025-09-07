@@ -17,6 +17,8 @@ export const GET_EVENTS = "/events";
 export const ADD_EVENTS = "/event/create-event";
 export const GET_ALL_EVENTS = "/event/get-upcoming-events";
 export const GET_PAST_EVENTS = "/event/get-past-events";
+export const GET_EVENT_SPEAKERS = "/admin/speakers";
+export const CREATE_EVENT_SPEAKERS = "/admin/speakers";
 export const GET_CATEGORIES = "/categories";
 export const GET_UPCOMMINGEVENT = "/upcommingevents";
 export const ADD_NEW_EVENT = "/add/event";
@@ -25,9 +27,9 @@ export const DELETE_EVENT = "/delete/event";
 
 // Chat
 export const GET_DIRECT_CONTACT = "/chat";
-export const GET_DIRECTS_CONTACT = "/questions";
+export const GET_DIRECTS_CONTACT = "/questions/allquestions";
 export const GET_MESSAGES = "/messages";
-export const GET_MESAGES = "/questions/allquestions";
+export const GET_MESAGES = "/questions";
 export const ADD_MESSAGE = "add/message";
 export const GET_CHANNELS = "/channels";
 export const DELETE_MESSAGE = "delete/message";

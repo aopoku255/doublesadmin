@@ -4,6 +4,8 @@ import {
   getAllEvents as getEventsApi,
   addEvents as addEventApi,
   getPastEvents as getPastEventsApi,
+  getEventSpeakers as getEventSpeakersApi,
+  createEventSpeakers as createEventSpeakersApi,
 } from "../../helpers/fakebackend_helper";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +15,7 @@ export const getAllEvents = createAsyncThunk(
   async () => {
     try {
       const response = await getEventsApi();
-      console.log(response);
+
       return response;
     } catch (error) {
       return error;
@@ -26,6 +28,32 @@ export const getPastEvents = createAsyncThunk(
   async () => {
     try {
       const response = await getPastEventsApi();
+
+      return response;
+    } catch (error) {
+      return error;
+    }
+  }
+);
+
+export const getEventSpeakers = createAsyncThunk(
+  "events/getEventSpeakers",
+  async () => {
+    try {
+      const response = await getEventSpeakersApi();
+      console.log(response);
+      return response;
+    } catch (error) {
+      return error;
+    }
+  }
+);
+
+export const createEventSpeakers = createAsyncThunk(
+  "events/createEventSpeakers",
+  async (data) => {
+    try {
+      const response = await createEventSpeakersApi(data);
       console.log(response);
       return response;
     } catch (error) {

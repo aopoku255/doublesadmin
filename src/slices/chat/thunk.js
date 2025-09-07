@@ -61,6 +61,7 @@ export const getMessages = createAsyncThunk(
 export const getMesages = createAsyncThunk("chat/getMesages", async () => {
   try {
     const response = await getMesagesApi();
+    console.log(response);
     const data = response;
 
     return data;
