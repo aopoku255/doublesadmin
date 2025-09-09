@@ -10,6 +10,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Spinner,
 } from "reactstrap";
 import Flatpickr from "react-flatpickr";
 import { useQuill } from "react-quilljs";
@@ -317,7 +318,12 @@ const CreateEvent = () => {
               color="dark"
               outline
             >
-              {addEventLoading ? <Loader /> : ""}
+              {addEventLoading ? (
+                              <Spinner size="sm" className="me-2">
+                                {" "}
+                                Loading...{" "}
+                              </Spinner>
+                            ) : null}
               Create Event
             </Button>
           </Col>
@@ -352,7 +358,12 @@ const CreateEvent = () => {
         </ModalBody>
         <ModalFooter>
           <Button color="dark" onClick={handleCreateSpeakerSubmit}>
-            {createSpeakerLoading ? <Loader /> : ""}
+            {createSpeakerLoading ? (
+                              <Spinner size="sm" className="me-2">
+                                {" "}
+                                Loading...{" "}
+                              </Spinner>
+                            ) : null}
             Add Speaker
           </Button>
         </ModalFooter>
