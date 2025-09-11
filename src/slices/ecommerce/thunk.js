@@ -18,6 +18,7 @@ import {
   deleteCustomer as deleteCustomerApi,
   addNewProduct as addNewProductApi,
   updateProduct as updateProductApi,
+  checkinUser as checkinUserApi,
 } from "../../helpers/fakebackend_helper";
 
 export const getProducts = createAsyncThunk(
@@ -67,6 +68,18 @@ export const getRegistrants = createAsyncThunk(
   async (eventId) => {
     try {
       const response = getRegistrantsApi(eventId);
+      return response;
+    } catch (error) {
+      return error;
+    }
+  }
+);
+
+export const checkinUser = createAsyncThunk(
+  "ecommerce/checkinUser",
+  async (data) => {
+    try {
+      const response = checkinUserApi(data);
       return response;
     } catch (error) {
       return error;

@@ -169,6 +169,8 @@ export const getCustomers = () => api.get(url.GET_CUSTOMERS);
 export const getRegistrants = (eventId) =>
   api.get(`${url.GET_REGISTRANTS}/${eventId}`);
 
+export const checkinUser = (data) => api.create(url.CHECKIN_USER, data);
+
 // add Customers
 export const addNewCustomer = (customer) =>
   api.create(url.ADD_NEW_CUSTOMER, customer);

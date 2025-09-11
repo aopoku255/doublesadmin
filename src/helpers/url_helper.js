@@ -54,6 +54,7 @@ export const DELETE_ORDER = "/apps/order";
 // Customers
 export const GET_CUSTOMERS = "/apps/customer";
 export const GET_REGISTRANTS = "/event/get-all-registrations";
+export const CHECKIN_USER = "/event/checkin";
 export const ADD_NEW_CUSTOMER = "/apps/customer";
 export const UPDATE_CUSTOMER = "/apps/customer";
 export const DELETE_CUSTOMER = "/apps/customer";

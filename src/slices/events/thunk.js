@@ -87,7 +87,7 @@ export const addEvent = (event, history) => async () => {
       setTimeout(() => {
         toast.success("Event Added Successfully", { autoClose: 3000 });
       }, 3000);
-      history("/events");
+      history("/upcoming-events");
     }
 
     return data;

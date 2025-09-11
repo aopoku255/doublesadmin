@@ -13,6 +13,8 @@ import {
   Label,
   Input,
   FormFeedback,
+  Button,
+  Spinner,
 } from "reactstrap";
 
 import { Link, useParams } from "react-router-dom";
@@ -37,6 +39,7 @@ import {
   addNewCustomer as onAddNewCustomer,
   updateCustomer as onUpdateCustomer,
   deleteCustomer as onDeleteCustomer,
+  checkinUser,
 } from "../../../slices/thunks";
 
 //redux
@@ -157,7 +160,7 @@ const EcommerceCustomers = () => {
   const handleCustomerClick = useCallback(
     (arg) => {
       const customer = arg;
-
+      console.log(arg);
       setCustomer({
         _id: customer._id,
         customer: customer.customer,
@@ -165,6 +168,8 @@ const EcommerceCustomers = () => {
         phone: customer.phone,
         date: customer.date,
         status: customer.status,
+        userId: customer.userId,
+        eventId: customer.eventId,
       });
 
       setIsEdit(true);
@@ -172,6 +177,32 @@ const EcommerceCustomers = () => {
     },
     [toggle]
   );
+
+  const [checkinloading, setcheckinloading] = useState(false);
+
+  const handleUserCheckin = () => {
+    setcheckinloading(true);
+    const { userId, eventId } = customer;
+    const data = { userId, eventId };
+
+    dispatch(checkinUser(data))
+      .then((res) => {
+        setcheckinloading(false);
+
+        if (res?.payload?.status === "Success") {
+          setModal(false);
+          toast.success("User checked in successfully!");
+        } else {
+          setModal(false);
+          toast.error(res?.message || "User already checked in");
+        }
+      })
+      .catch((err) => {
+        setcheckinloading(false);
+        setModal(false);
+        toast.error("An error occurred during check-in");
+      });
+  };
 
   useEffect(() => {
     dispatch(onGetRegistrants(eventId));
@@ -428,6 +459,8 @@ const EcommerceCustomers = () => {
   const newRegistrants = customers.map((registers) => {
     return {
       id: 1,
+      userId: registers?.userId,
+      eventId: registers?.eventId,
       customerId: "#VZ2101",
       customer: `${registers?.user?.firstName} ${registers?.user?.lastName}`,
       email: registers?.user?.email,
@@ -444,8 +477,6 @@ const EcommerceCustomers = () => {
       statusClass: "success",
     };
   });
-
-  console.log(customers);
 
   return (
     <React.Fragment>
@@ -522,209 +553,41 @@ const EcommerceCustomers = () => {
                       isGlobalFilter={true}
                       isAddUserList={false}
                       customPageSize={8}
-                      className="custom-header-css"
+                      className="custom-header-css responsive"
                       handleCustomerClick={handleCustomerClicks}
-                      isCustomerFilter={true}
                       SearchPlaceholder="Search for customer, email, phone, status or something..."
                     />
                   </div>
                   <Modal id="showModal" isOpen={modal} toggle={toggle} centered>
                     <ModalHeader className="bg-light p-3" toggle={toggle}>
-                      {!!isEdit ? "Edit Customer" : "Add Customer"}
+                      Check-in confirmation
                     </ModalHeader>
-                    <Form
-                      className="tablelist-form"
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        validation.handleSubmit();
-                        return false;
-                      }}
-                    >
-                      <ModalBody>
-                        <input type="hidden" id="id-field" />
+                    <ModalBody>
+                      <p>
+                        Are you sure you want to check-in{" "}
+                        <b>{customer?.customer}</b> user?
+                      </p>
 
-                        <div
-                          className="mb-3"
-                          id="modal-id"
-                          style={{ display: "none" }}
-                        >
-                          <Label htmlFor="id-field1" className="form-label">
-                            ID
-                          </Label>
-                          <Input
-                            type="text"
-                            id="id-field1"
-                            className="form-control"
-                            placeholder="ID"
-                            readOnly
-                          />
-                        </div>
-
-                        <div className="mb-3">
-                          <Label
-                            htmlFor="customername-field"
-                            className="form-label"
-                          >
-                            Customer Name
-                          </Label>
-                          <Input
-                            name="customer"
-                            id="customername-field"
-                            className="form-control"
-                            placeholder="Enter Name"
-                            type="text"
-                            validate={{
-                              required: { value: true },
-                            }}
-                            onChange={validation.handleChange}
-                            onBlur={validation.handleBlur}
-                            value={validation.values.customer || ""}
-                            invalid={
-                              validation.touched.customer &&
-                              validation.errors.customer
-                                ? true
-                                : false
-                            }
-                          />
-                          {validation.touched.customer &&
-                          validation.errors.customer ? (
-                            <FormFeedback type="invalid">
-                              {validation.errors.customer}
-                            </FormFeedback>
-                          ) : null}
-                        </div>
-
-                        <div className="mb-3">
-                          <Label htmlFor="email-field" className="form-label">
-                            Email
-                          </Label>
-                          <Input
-                            name="email"
-                            type="email"
-                            id="email-field"
-                            placeholder="Enter Email"
-                            onChange={validation.handleChange}
-                            onBlur={validation.handleBlur}
-                            value={validation.values.email || ""}
-                            invalid={
-                              validation.touched.email &&
-                              validation.errors.email
-                                ? true
-                                : false
-                            }
-                          />
-                          {validation.touched.email &&
-                          validation.errors.email ? (
-                            <FormFeedback type="invalid">
-                              {validation.errors.email}
-                            </FormFeedback>
-                          ) : null}
-                        </div>
-
-                        <div className="mb-3">
-                          <Label htmlFor="phone-field" className="form-label">
-                            Phone
-                          </Label>
-                          <Input
-                            name="phone"
-                            type="text"
-                            id="phone-field"
-                            placeholder="Enter Phone no."
-                            onChange={validation.handleChange}
-                            onBlur={validation.handleBlur}
-                            value={validation.values.phone || ""}
-                            invalid={
-                              validation.touched.phone &&
-                              validation.errors.phone
-                                ? true
-                                : false
-                            }
-                          />
-                          {validation.touched.phone &&
-                          validation.errors.phone ? (
-                            <FormFeedback type="invalid">
-                              {validation.errors.phone}
-                            </FormFeedback>
-                          ) : null}
-                        </div>
-
-                        <div className="mb-3">
-                          <Label htmlFor="date-field" className="form-label">
-                            Joining Date
-                          </Label>
-
-                          <Flatpickr
-                            name="date"
-                            id="date-field"
-                            className="form-control"
-                            placeholder="Select a date"
-                            options={{
-                              altInput: true,
-                              altFormat: "d M, Y",
-                              dateFormat: "d M, Y",
-                            }}
-                            onChange={(e) => dateformate(e)}
-                            value={validation.values.date || ""}
-                          />
-                          {validation.touched.date && validation.errors.date ? (
-                            <FormFeedback type="invalid">
-                              {validation.errors.date}
-                            </FormFeedback>
-                          ) : null}
-                        </div>
-
-                        <div>
-                          <Label htmlFor="status-field" className="form-label">
-                            Status
-                          </Label>
-
-                          <Input
-                            name="status"
-                            type="select"
-                            className="form-select"
-                            id="status-field"
-                            onChange={validation.handleChange}
-                            onBlur={validation.handleBlur}
-                            value={validation.values.status || ""}
-                          >
-                            {customermocalstatus.map((item, key) => (
-                              <React.Fragment key={key}>
-                                {item.options.map((item, key) => (
-                                  <option value={item.value} key={key}>
-                                    {item.label}
-                                  </option>
-                                ))}
-                              </React.Fragment>
-                            ))}
-                          </Input>
-                          {validation.touched.status &&
-                          validation.errors.status ? (
-                            <FormFeedback type="invalid">
-                              {validation.errors.status}
-                            </FormFeedback>
-                          ) : null}
-                        </div>
-                      </ModalBody>
-                      <ModalFooter>
-                        <div className="hstack gap-2 justify-content-end">
-                          <button
-                            type="button"
-                            className="btn btn-light"
-                            onClick={() => {
-                              setModal(false);
-                            }}
-                          >
+                      {/* <Button color="success">Confirm</Button> */}
+                    </ModalBody>
+                    <ModalFooter>
+                      <Button
+                        color="primary"
+                        onClick={handleUserCheckin}
+                        className="d-flex"
+                      >
+                        {checkinloading ? (
+                          <Spinner size="sm" className="me-2">
                             {" "}
-                            Close{" "}
-                          </button>
-
-                          <button type="submit" className="btn btn-success">
-                            {" "}
-                            {!!isEdit ? "Update" : "Add Customer"}{" "}
-                          </button>
-                        </div>
-                      </ModalFooter>
-                    </Form>
+                            Loading...{" "}
+                          </Spinner>
+                        ) : null}
+                        Confirm
+                      </Button>
+                      <Button color="secondary" onClick={toggle}>
+                        Cancel
+                      </Button>
+                    </ModalFooter>
                   </Modal>
                   <ToastContainer closeButton={false} limit={1} />
                 </div>

@@ -14,6 +14,7 @@ import {
   deleteCustomer,
   getSellers,
   getRegistrants,
+  checkinUser,
 } from "./thunk";
 export const initialState = {
   products: [],
