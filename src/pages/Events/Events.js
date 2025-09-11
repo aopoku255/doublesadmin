@@ -113,6 +113,7 @@ const Events = () => {
                             <span className="ms-2">Host:</span>
                             <span className="ms-2">{event?.eventHost}</span>
                           </p>
+                          <img src={event?.eventQRCode || ""} alt="" />
                         </Col>
                       </Row>
                     </CardBody>

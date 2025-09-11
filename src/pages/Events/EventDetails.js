@@ -95,6 +95,17 @@ const EventDetails = () => {
                     <Link to={`/event-registrations/${event?.id}`}>
                       View Event Registrations
                     </Link>
+                    {event?.eventQRCode && (
+                      <a
+                        className="d-block text-success mt-2"
+                        href={event.eventQRCode}
+                        download={`event-${event.id}.png`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Download Event QR Code
+                      </a>
+                    )}
                   </Col>
                 </CardBody>
               </Card>
