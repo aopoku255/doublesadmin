@@ -23,6 +23,8 @@ export const initialState = {
   customers: [],
   registrants: [],
   error: {},
+  isCustomerSuccess: false,
+  isCustomerLoading: true,
 };
 
 const EcommerceSlice = createSlice({
@@ -35,7 +37,15 @@ const EcommerceSlice = createSlice({
     });
 
     builder.addCase(getRegistrants.fulfilled, (state, action) => {
+      state.isCustomerLoading = false;
+      state.isCustomerSuccess = true;
       state.registrants = action.payload.data;
+    });
+
+    builder.addCase(getRegistrants.rejected, (state, action) => {
+      state.isCustomerLoading = false;
+      state.isCustomerSuccess = true;
+      state.registrants = [];
     });
 
     builder.addCase(getProducts.rejected, (state, action) => {

@@ -118,7 +118,15 @@ const ProfileDropdown = () => {
                         </Link>
                     </DropdownItem> */}
           <DropdownItem className="p-0">
-            <Link to={"/login"} className="dropdown-item">
+            <Link
+              to={"/login"}
+              className="dropdown-item"
+              onClick={(e) => {
+                sessionStorage.clear();
+                localStorage.clear();
+                navigate("/login");
+              }}
+            >
               <i className="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>{" "}
               <span className="align-middle" data-key="t-logout">
                 Logout

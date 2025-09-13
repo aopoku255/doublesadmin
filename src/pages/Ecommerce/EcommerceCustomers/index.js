@@ -59,12 +59,12 @@ const EcommerceCustomers = () => {
   const ecomCustomerProperties = createSelector(selectLayoutState, (ecom) => ({
     customers: ecom.registrants,
     isCustomerSuccess: ecom?.isCustomerSuccess,
+    isCustomerLoading: ecom?.isCustomerLoading,
     error: ecom?.error,
   }));
   // Inside your component
-  const { customers, isCustomerSuccess, error } = useSelector(
-    ecomCustomerProperties
-  );
+  const { customers, isCustomerSuccess, error, isCustomerLoading } =
+    useSelector(ecomCustomerProperties);
 
   const [isEdit, setIsEdit] = useState(false);
   const [customer, setCustomer] = useState([]);
@@ -191,6 +191,7 @@ const EcommerceCustomers = () => {
 
         if (res?.payload?.status === "Success") {
           setModal(false);
+          dispatch(onGetRegistrants(eventId));
           toast.success("User checked in successfully!");
         } else {
           setModal(false);
@@ -206,7 +207,7 @@ const EcommerceCustomers = () => {
 
   useEffect(() => {
     dispatch(onGetRegistrants(eventId));
-  }, [eventId]);
+  }, [dispatch, eventId]);
 
   useEffect(() => {
     setCustomer(customers);
@@ -357,7 +358,7 @@ const EcommerceCustomers = () => {
         accessor: "status",
         Cell: (cell) => {
           switch (cell.value) {
-            case "Active":
+            case "confirmed":
               return (
                 <span className="badge text-uppercase bg-success-subtle text-success">
                   {" "}
@@ -384,32 +385,29 @@ const EcommerceCustomers = () => {
       {
         Header: "Action",
         Cell: (cellProps) => {
+          const customerData = cellProps.row.original;
+
           return (
             <ul className="list-inline hstack gap-2 mb-0">
               <li className="list-inline-item edit" title="Edit">
-                <Link
-                  to="#"
-                  className=" d-inline-block edit-item-btn btn btn-primary"
-                  onClick={() => {
-                    const customerData = cellProps.row.original;
-                    handleCustomerClick(customerData);
-                  }}
-                >
-                  Check-in
-                </Link>
+                {customerData.status === "confirmed" ? (
+                  <button
+                    className="btn btn-success"
+                    disabled
+                    style={{ cursor: "not-allowed" }}
+                  >
+                    Confirmed
+                  </button>
+                ) : (
+                  <Link
+                    to="#"
+                    className="d-inline-block edit-item-btn btn btn-primary"
+                    onClick={() => handleCustomerClick(customerData)}
+                  >
+                    Check-in
+                  </Link>
+                )}
               </li>
-              {/* <li className="list-inline-item" title="Remove">
-                <Link
-                  to="#"
-                  className="text-danger d-inline-block remove-item-btn"
-                  onClick={() => {
-                    const customerData = cellProps.row.original;
-                    onClickDelete(customerData);
-                  }}
-                >
-                  <i className="ri-delete-bin-5-fill fs-16"></i>
-                </Link>
-              </li> */}
             </ul>
           );
         },
@@ -547,16 +545,20 @@ const EcommerceCustomers = () => {
                 </CardHeader>
                 <div className="card-body pt-0">
                   <div>
-                    <TableContainer
-                      columns={columns}
-                      data={newRegistrants}
-                      isGlobalFilter={true}
-                      isAddUserList={false}
-                      customPageSize={8}
-                      className="custom-header-css responsive"
-                      handleCustomerClick={handleCustomerClicks}
-                      SearchPlaceholder="Search for customer, email, phone, status or something..."
-                    />
+                    {isCustomerSuccess ? (
+                      <TableContainer
+                        columns={columns}
+                        data={newRegistrants}
+                        isGlobalFilter={true}
+                        isAddUserList={false}
+                        customPageSize={8}
+                        className="custom-header-css responsive"
+                        handleCustomerClick={handleCustomerClicks}
+                        SearchPlaceholder="Search for customer, email, phone, status or something..."
+                      />
+                    ) : (
+                      <Loader />
+                    )}
                   </div>
                   <Modal id="showModal" isOpen={modal} toggle={toggle} centered>
                     <ModalHeader className="bg-light p-3" toggle={toggle}>
