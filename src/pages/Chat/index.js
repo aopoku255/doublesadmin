@@ -42,6 +42,8 @@ import {
   deleteMessage as onDeleteMessage,
 } from "../../slices/thunks";
 
+import { getMe, hideQuestion } from "../../helpers/fakebackend_helper";
+import { toast, ToastContainer } from "react-toastify";
 import avatar2 from "../../assets/images/users/avatar-2.jpg";
 import userDummayImage from "../../assets/images/users/user-dummy-img.jpg";
 
@@ -63,6 +65,7 @@ const Chat = () => {
   const [isInfoDetails, setIsInfoDetails] = useState(false);
 
   const [currentRoomId, setCurrentRoomId] = useState(0);
+  const [canReply, setCanReply] = useState(false);
   const [messageBox, setMessageBox] = useState(null);
   const [curMessage, setcurMessage] = useState("");
   const [search_Menu, setsearch_Menu] = useState(false);
@@ -82,7 +85,6 @@ const Chat = () => {
   }));
   // Inside your component
   const { chats, messages, channels } = useSelector(chatProperties);
-  console.log("Chat Properties:", messages);
 
   const [Chat_Box_Username, setChat_Box_Username] = useState("");
   const [Chat_Box_Image, setChat_Box_Image] = useState("");
@@ -100,6 +102,12 @@ const Chat = () => {
   const toggleSettings = () => {
     setsettings_Menu(!settings_Menu);
   };
+  useEffect(() => {
+    getMe()
+      .then((response) => setCanReply(response.data.isSuper))
+      .catch(() => setCanReply(false));
+  }, []);
+
   useEffect(() => {
     dispatch(onGetDirectsContact());
     dispatch(onGetChannels());
@@ -125,9 +133,18 @@ const Chat = () => {
     userChatShow.current.classList.remove("user-chat-show");
   };
 
+  const hideMessage = async (message) => {
+    try {
+      await hideQuestion(message.id);
+      toast.success("Hidden from everyone", { autoClose: 3000 });
+      dispatch(onGetMesages());
+    } catch (error) {
+      toast.error(`Not hidden: ${error}`, { autoClose: 3000 });
+    }
+  };
+
   const addMessage = (roomId, sender) => {
     const message = {
-      id: Math.floor(Math.random() * 100),
       roomId,
       sender,
       message: curMessage,
@@ -225,6 +242,7 @@ const Chat = () => {
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
+          <ToastContainer closeButton={false} limit={1} />
           <div className="chat-wrapper d-lg-flex gap-1 mx-n4 mt-n4 p-1">
             <div className="chat-leftsidebar">
               <div className="px-4 pt-4 mb-3">
@@ -628,18 +646,22 @@ const Chat = () => {
                             className="list-unstyled chat-conversation-list"
                             id="users-conversation"
                           >
-                            {messages &&
-                              map(messages, (message, key) => (
+                            {Array.isArray(messages) &&
+                              map(
+                                messages.filter(
+                                  (message) => message.roomId === currentRoomId
+                                ),
+                                (message, key) => (
                                 <li
                                   className={
-                                    message.sender === Chat_Box_Username
+                                    message.isUser
                                       ? " chat-list right"
                                       : "chat-list left"
                                   }
                                   key={key}
                                 >
                                   <div className="conversation-list">
-                                    {message.sender === Chat_Box_Username && (
+                                    {message.isUser && (
                                       <div className="chat-avatar">
                                         {Chat_Box_Image === undefined ? (
                                           <img src={userDummayImage} alt="" />
@@ -655,6 +677,19 @@ const Chat = () => {
                                           <p className="mb-0 ctext-content">
                                             {message.message}
                                           </p>
+                                          {message.isUser && (
+                                            <small
+                                              className={
+                                                message.isPublic
+                                                  ? "text-success"
+                                                  : "text-muted"
+                                              }
+                                            >
+                                              {message.isPublic
+                                                ? "Public: everyone can see"
+                                                : "Private"}
+                                            </small>
+                                          )}
                                         </div>
                                         <UncontrolledDropdown className="align-self-start message-box-drop">
                                           <DropdownToggle
@@ -673,10 +708,6 @@ const Chat = () => {
                                               <i className="ri-reply-line me-2 text-muted align-bottom"></i>
                                               Reply
                                             </DropdownItem>
-                                            <DropdownItem href="#">
-                                              <i className="ri-share-line me-2 text-muted align-bottom"></i>
-                                              Forward
-                                            </DropdownItem>
                                             <DropdownItem
                                               href="#"
                                               onClick={(e) =>
@@ -686,21 +717,15 @@ const Chat = () => {
                                               <i className="ri-file-copy-line me-2 text-muted align-bottom"></i>
                                               Copy
                                             </DropdownItem>
-                                            <DropdownItem href="#">
-                                              <i className="ri-bookmark-line me-2 text-muted align-bottom"></i>
-                                              Bookmark
-                                            </DropdownItem>
-                                            <DropdownItem
-                                              href="#"
-                                              onClick={() =>
-                                                dispatch(
-                                                  onDeleteMessage(message.id)
-                                                )
-                                              }
-                                            >
-                                              <i className="ri-delete-bin-5-line me-2 text-muted align-bottom"></i>
-                                              Delete
-                                            </DropdownItem>
+                                            {message.isPublic && (
+                                              <DropdownItem
+                                                href="#"
+                                                onClick={() => hideMessage(message)}
+                                              >
+                                                <i className="ri-eye-off-line me-2 text-muted align-bottom"></i>
+                                                Hide from everyone
+                                              </DropdownItem>
+                                            )}
                                           </DropdownMenu>
                                         </UncontrolledDropdown>
                                       </div>
@@ -737,6 +762,12 @@ const Chat = () => {
                     </div>
 
                     <div className="chat-input-section p-3 p-lg-4">
+                      {!canReply && (
+                        <p className="text-muted mb-0">
+                          Only a Super Administrator can reply to users.
+                        </p>
+                      )}
+                      {canReply && (
                       <form id="chatinput-form">
                         <Row className="g-0 align-items-center">
                           <div className="col-auto">
@@ -788,6 +819,7 @@ const Chat = () => {
                           </div>
                         </Row>
                       </form>
+                      )}
                     </div>
 
                     <div className={reply ? "replyCard show" : "replyCard"}>

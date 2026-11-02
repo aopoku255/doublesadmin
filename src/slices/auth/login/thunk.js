@@ -6,6 +6,8 @@ import {
   postSocialLogin,
 } from "../../../helpers/fakebackend_helper";
 
+import { setAuthorization } from "../../../helpers/api_helper";
+
 import {
   loginSuccess,
   logoutUserSuccess,
@@ -24,10 +26,9 @@ export const loginUser = (user, history) => async (dispatch) => {
 
     var data = await response;
 
-    console.log("Login Data", data);
-
     if (data) {
       sessionStorage.setItem("authUser", JSON.stringify(data));
+      setAuthorization(data.token);
       if (process.env.REACT_APP_DEFAULTAUTH === "fake") {
         var finallogin = JSON.stringify(data);
         finallogin = JSON.parse(finallogin);

@@ -19,19 +19,33 @@ axios.interceptors.response.use(
   },
   function (error) {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
-    let message;
-    switch (error.status) {
-      case 500:
-        message = "Internal Server Error";
-        break;
-      case 401:
-        message = "Invalid credentials";
-        break;
-      case 404:
-        message = "Sorry! the data you are looking for could not be found";
-        break;
-      default:
-        message = error.message || error;
+    const status = error.response?.status;
+    const signingIn = error.config?.url?.includes("/admin/signin");
+
+    // An expired or revoked session goes back to the login page.
+    if (status === 401 && !signingIn && sessionStorage.getItem("authUser")) {
+      sessionStorage.removeItem("authUser");
+      window.location.assign("/login");
+    }
+
+    let message = error.response?.data?.message;
+    if (!message) {
+      switch (status) {
+        case 500:
+          message = "Internal Server Error";
+          break;
+        case 401:
+          message = "Invalid credentials";
+          break;
+        case 403:
+          message = "You do not have permission to do this";
+          break;
+        case 404:
+          message = "Sorry! the data you are looking for could not be found";
+          break;
+        default:
+          message = error.message || error;
+      }
     }
     return Promise.reject(message);
   }

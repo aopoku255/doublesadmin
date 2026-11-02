@@ -50,7 +50,7 @@ const chatSlice = createSlice({
     });
 
     builder.addCase(addMessage.fulfilled, (state, action) => {
-      state.messages.push(action.payload);
+      if (action.payload) state.messages.push(action.payload);
     });
     builder.addCase(addMessage.rejected, (state, action) => {
       state.error = action.payload.error || null;

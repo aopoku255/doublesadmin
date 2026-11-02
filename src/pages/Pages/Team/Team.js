@@ -24,6 +24,7 @@ import {
 import BreadCrumb from "../../../Components/Common/BreadCrumb";
 import DeleteModal from "../../../Components/Common/DeleteModal";
 import { toast, ToastContainer } from "react-toastify";
+import { getRoles } from "../../../helpers/fakebackend_helper";
 
 //User Images
 import avatar2 from "../../../assets/images/users/avatar-2.jpg";
@@ -70,6 +71,13 @@ const Team = () => {
   //Modal
   const [teamMem, setTeamMem] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
+  const [roles, setRoles] = useState([]);
+
+  useEffect(() => {
+    getRoles()
+      .then((response) => setRoles(response.data))
+      .catch((error) => toast.error(`Roles not loaded: ${error}`));
+  }, []);
   const [modal, setModal] = useState(false);
   const [passwordShow, setPasswordShow] = useState(false);
 
@@ -212,13 +220,16 @@ const Team = () => {
       lastName: (teamMem && teamMem.lastName) || "",
       email: (teamMem && teamMem.email) || "",
       password: (teamMem && teamMem.password) || "",
-      designation: (teamMem && teamMem.designation) || "ADMIN",
+      designation: (teamMem && teamMem.designation) || "",
     },
     validationSchema: Yup.object({
       firstName: Yup.string().required("Please Enter First Name"),
       lastName: Yup.string().required("Please Enter Last Name"),
       email: Yup.string().required("Please Enter email"),
-      password: Yup.string().required("Please Enter password"),
+      password: Yup.string()
+        .min(8, "Use at least 8 characters")
+        .required("Please Enter password"),
+      designation: Yup.string().required("Please Choose a Role"),
     }),
     onSubmit: (values) => {
       if (isEdit) {
@@ -238,9 +249,8 @@ const Team = () => {
           lastName: values.lastName,
           email: values.email,
           password: values.password,
-          role: values.designation,
+          roleIds: values.designation ? [Number(values.designation)] : [],
         };
-        console.log(newTeamData);
         // save new TeamData
         dispatch(onAddAdmin(newTeamData))
           .then(() => {
@@ -327,47 +337,6 @@ const Team = () => {
                           <Row className="align-items-center team-row">
                             <Col className="team-settings">
                               <Row>
-                                <Col>
-                                  <div className="flex-shrink-0 me-2">
-                                    <button
-                                      type="button"
-                                      className="btn btn-light btn-icon rounded-circle btn-sm favourite-btn"
-                                      onClick={(e) => favouriteBtn(e.target)}
-                                    >
-                                      <i className="ri-star-fill fs-14"></i>
-                                    </button>
-                                  </div>
-                                </Col>
-                                <UncontrolledDropdown
-                                  direction="start"
-                                  className="col text-end"
-                                >
-                                  <DropdownToggle
-                                    tag="a"
-                                    id="dropdownMenuLink2"
-                                    role="button"
-                                  >
-                                    <i className="ri-more-fill fs-17"></i>
-                                  </DropdownToggle>
-                                  <DropdownMenu>
-                                    <DropdownItem
-                                      className="dropdown-item edit-list"
-                                      href="#addmemberModal"
-                                      onClick={() => handleTeamClick(item)}
-                                    >
-                                      <i className="ri-pencil-line me-2 align-bottom text-muted"></i>
-                                      Edit
-                                    </DropdownItem>
-                                    <DropdownItem
-                                      className="dropdown-item remove-list"
-                                      href="#removeMemberModal"
-                                      onClick={() => onClickData(item)}
-                                    >
-                                      <i className="ri-delete-bin-5-line me-2 align-bottom text-muted"></i>
-                                      Remove
-                                    </DropdownItem>
-                                  </DropdownMenu>
-                                </UncontrolledDropdown>
                               </Row>
                             </Col>
                             <Col lg={4} className="col">
@@ -401,7 +370,9 @@ const Team = () => {
                                     <h5 className="fs-16 mb-1">{item.name}</h5>
                                   </Link>
                                   <p className="text-muted mb-0">
-                                    {item.designation}
+                                    {(item.roles || [])
+                                      .map((role) => role.name)
+                                      .join(", ")}
                                   </p>
                                 </div>
                               </div>
@@ -427,14 +398,6 @@ const Team = () => {
                     </Col>
                   ))}
 
-                  <Col lg={12}>
-                    <div className="text-center mb-3">
-                      <Link to="#" className="text-success">
-                        <i className="mdi mdi-loading mdi-spin fs-20 align-middle me-2"></i>{" "}
-                        Load More{" "}
-                      </Link>
-                    </div>
-                  </Col>
                 </Row>
 
                 <div
@@ -705,15 +668,10 @@ const Team = () => {
                                   Role
                                 </Label>
                                 <Input
-                                  type="text"
-                                  className="form-control"
+                                  type="select"
+                                  className="form-select"
                                   id="designation"
-                                  placeholder="Enter designation"
                                   name="designation"
-                                  disabled
-                                  validate={{
-                                    required: { value: true },
-                                  }}
                                   onChange={validation.handleChange}
                                   onBlur={validation.handleBlur}
                                   value={validation.values.designation || ""}
@@ -723,7 +681,14 @@ const Team = () => {
                                       ? true
                                       : false
                                   }
-                                />
+                                >
+                                  <option value="">Choose a role</option>
+                                  {roles.map((role) => (
+                                    <option key={role.id} value={role.id}>
+                                      {role.name}
+                                    </option>
+                                  ))}
+                                </Input>
                                 {validation.touched.designation &&
                                 validation.errors.designation ? (
                                   <FormFeedback type="invalid">

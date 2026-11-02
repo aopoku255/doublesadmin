@@ -3,6 +3,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
   getAllEvents as getEventsApi,
   addEvents as addEventApi,
+  editEvent as editEventApi,
   getPastEvents as getPastEventsApi,
   getEventSpeakers as getEventSpeakersApi,
   createEventSpeakers as createEventSpeakersApi,
@@ -63,7 +64,23 @@ export const createEventSpeakers = createAsyncThunk(
 );
 
 export const addEvent = (event, history) => async () => {
-  console.log(event?.eventImages);
+  if (
+    !event.eventName ||
+    !event.startDate ||
+    !event.endDate ||
+    !event.eventImages?.length
+  ) {
+    toast.error("Add a name, start and end date, and an image", {
+      autoClose: 3000,
+    });
+    return;
+  }
+
+  if (new Date(event.endDate) < new Date(event.startDate)) {
+    toast.error("The event must end after it starts", { autoClose: 3000 });
+    return;
+  }
+
   try {
     const formData = new FormData();
 
@@ -92,7 +109,19 @@ export const addEvent = (event, history) => async () => {
 
     return data;
   } catch (error) {
-    toast.error("Event Added Failed", { autoClose: 3000 });
+    toast.error(`Event not added: ${error}`, { autoClose: 3000 });
+    return error;
+  }
+};
+
+export const editEvent = (id, data, history) => async () => {
+  try {
+    const response = await editEventApi(id, data);
+    toast.success("Event Updated", { autoClose: 3000 });
+    history("/upcoming-events");
+    return response;
+  } catch (error) {
+    toast.error(`Event not updated: ${error}`, { autoClose: 3000 });
     return error;
   }
 };

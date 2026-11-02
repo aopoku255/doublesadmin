@@ -1,4 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
 
 //Include Both Helper File with needed methods
 import {
@@ -74,11 +75,21 @@ export const addMessage = createAsyncThunk(
   "chat/addMessage",
   async (message) => {
     try {
-      const response = addMessageApi(message);
-      const data = await response;
-      return data;
+      const { data } = await addMessageApi(message);
+      return {
+        id: data.id,
+        roomId: message.roomId,
+        message: data.question,
+        isUser: false,
+        sender: message.sender,
+        createdAt: new Date(data.createdAt).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
     } catch (error) {
-      return error;
+      toast.error(`Reply not sent: ${error}`, { autoClose: 3000 });
+      return null;
     }
   }
 );

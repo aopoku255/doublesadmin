@@ -27,44 +27,11 @@ import {
 import axios from "axios";
 import { ToastContainer } from "react-toastify";
 import Select from "react-select";
-import {
-  GoogleMap,
-  useJsApiLoader,
-  StandaloneSearchBox,
-} from "@react-google-maps/api";
-import { useRef } from "react";
+import LocationInput from "../../Components/Common/LocationInput";
 import { Loader } from "feather-icons-react/build/IconComponents";
 
 const CreateEvent = () => {
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: "AIzaSyA7HjmbpODa6QsSiusofrZoGGGLBP9tCQI",
-    libraries: ["places", "marker", "maps"],
-  });
-
-  const inputRef = useRef(null);
-
-  const handleOnPlacesChanged = () => {
-    const places = inputRef.current.getPlaces();
-    if (places && places.length > 0) {
-      const place = places[0];
-      console.log(place);
-      // You can choose what you want to store
-      const formattedAddress =
-        `${place.name} ${place.formatted_address}` || place.name;
-
-      // Update your form state with the selected location
-      setEventDetails((prev) => ({
-        ...prev,
-        location: formattedAddress,
-      }));
-    }
-  };
-
   const navigate = useNavigate();
-  const baseUrl = axios.create({
-    baseURL: "http://localhost:8080/api/v1",
-  });
   const user = useSelector((state) => state?.Login?.user);
   const { quillRef, quill } = useQuill();
   const [files, setFiles] = useState(null);
@@ -101,6 +68,12 @@ const CreateEvent = () => {
       setEventDetails((prevDetails) => ({
         ...prevDetails,
         [fieldName]: e[0], // Capture date from Flatpickr
+        // A new start can overtake the chosen end, which then has to be picked again.
+        ...(fieldName === "startDate" &&
+        prevDetails.endDate &&
+        prevDetails.endDate < e[0]
+          ? { endDate: "" }
+          : {}),
       }));
       return;
     }
@@ -255,6 +228,7 @@ const CreateEvent = () => {
                 placeholder="Select Start Date and Time"
                 name="startDate"
                 onChange={(date) => handleChange(date, "startDate")}
+                value={eventDetails.startDate}
                 options={{ enableTime: true, dateFormat: "Y-m-d H:i" }}
               />
               <Flatpickr
@@ -262,24 +236,22 @@ const CreateEvent = () => {
                 placeholder="Select End Date and Time"
                 name="endDate"
                 onChange={(date) => handleChange(date, "endDate")}
-                options={{ enableTime: true, dateFormat: "Y-m-d H:i" }}
+                value={eventDetails.endDate}
+                options={{
+                  enableTime: true,
+                  dateFormat: "Y-m-d H:i",
+                  minDate: eventDetails.startDate,
+                }}
               />
             </div>
             <div className="mt-3">
               <Label className="form-label mb-0 mx-3">Location</Label>
-              {isLoaded && (
-                <StandaloneSearchBox
-                  onLoad={(ref) => (inputRef.current = ref)}
-                  onPlacesChanged={handleOnPlacesChanged}
-                >
-                  <Input
-                    placeholder="Add Event Location"
-                    name="location"
-                    onChange={handleChange}
-                    value={eventDetails.location}
-                  />
-                </StandaloneSearchBox>
-              )}
+              <LocationInput
+                value={eventDetails.location}
+                onChange={(location) =>
+                  setEventDetails((prev) => ({ ...prev, location }))
+                }
+              />
             </div>
             <div className="mt-3">
               <Label className="form-label mb-0 mx-3">Speakers/Host</Label>
@@ -307,7 +279,7 @@ const CreateEvent = () => {
             </div>
             <div className="mt-3 mb-5">
               <Label className="form-label mb-0 mx-3">Event Description</Label>
-              <div className="snow-editor" style={{ height: 300 }}>
+              <div className="snow-editor" style={{ height: 300, marginBottom: 90 }}>
                 <div ref={quillRef} />
               </div>
             </div>
