@@ -169,6 +169,15 @@ const Navdata = () => {
           stateVariables: isDashboard,
         }
       : "",
+    can("announcements.send")
+      ? {
+          id: "dashboard",
+          label: "Announcements",
+          icon: "ri-megaphone-line",
+          link: "/announcements",
+          stateVariables: isDashboard,
+        }
+      : "",
     can("events.view")
       ? {
       id: "dashboard",

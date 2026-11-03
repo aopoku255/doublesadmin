@@ -429,6 +429,11 @@ export const getAppointments = (status) =>
   api.get(url.APPOINTMENTS, status ? { status, limit: 100 } : { limit: 100 });
 export const setAppointmentStatus = (id, status) =>
   api.update(`${url.APPOINTMENTS}/${id}/status`, { status });
+export const getAnnouncements = () => api.get(url.ANNOUNCEMENTS);
+export const getAnnouncementAudience = () =>
+  api.get(`${url.ANNOUNCEMENTS}/audience`);
+export const sendAnnouncement = (announcement) =>
+  api.create(url.ANNOUNCEMENTS, announcement);
 export const addAdmin = (team) => api.create(url.ADD_ADMINS, team);
 export const deleteTeamData = (team) =>
   api.delete(url.DELETE_TEAMDATA, { headers: { team } });

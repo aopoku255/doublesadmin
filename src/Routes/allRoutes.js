@@ -248,6 +248,7 @@ import EventDetails from "../pages/Events/EventDetails";
 import PastEvents from "../pages/Events/PastEvents";
 import EditEvent from "../pages/Events/EditEvent";
 import Appointments from "../pages/Appointments";
+import Announcements from "../pages/Announcements";
 import EventRegistrations from "../pages/Events/EventRegistrations";
 
 const authProtectedRoutes = [
@@ -265,6 +266,7 @@ const authProtectedRoutes = [
   { path: "/dashboard-nft", component: <DashboardNFT /> },
   { path: "/dashboard-job", component: <DashboardJob /> },
   { path: "/appointment", component: <Appointments /> },
+  { path: "/announcements", component: <Announcements /> },
   { path: "/apps-calendar-month-grid", component: <MonthGrid /> },
   { path: "/apps-ecommerce-products", component: <EcommerceProducts /> },
   {

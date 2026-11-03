@@ -210,6 +210,7 @@ export const GET_ME = "/admin/me";
 export const GET_DASHBOARD = "/admin/dashboard";
 export const APPOINTMENT_SLOTS = "/appointments/admin/slots";
 export const APPOINTMENTS = "/appointments/admin";
+export const ANNOUNCEMENTS = "/admin/announcements";
 export const ADD_ADMINS = "/admin/signup";
 export const DELETE_TEAMDATA = "/delete/teamData";
 export const ADD_NEW_TEAMDATA = "/add/teamData";
