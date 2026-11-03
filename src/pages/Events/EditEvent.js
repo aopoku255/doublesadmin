@@ -3,33 +3,28 @@ import { Container, Row, Col, Button, Input, Label } from "reactstrap";
 import Flatpickr from "react-flatpickr";
 import { useQuill } from "react-quilljs";
 import "quill/dist/quill.snow.css";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { FilePond } from "react-filepond";
 import "filepond/dist/filepond.min.css";
-import { useDispatch, useSelector } from "react-redux";
-import { addEvent } from "../../slices/thunks";
-import axios from "axios";
+import { useDispatch } from "react-redux";
+import { editEvent } from "../../slices/thunks";
+import LocationInput from "../../Components/Common/LocationInput";
 import { ToastContainer } from "react-toastify";
 
 const EditEvent = () => {
   const navigate = useNavigate();
-  const baseUrl = axios.create({
-    baseURL: "http://localhost:8080/api/v1",
-  });
-  const user = useSelector((state) => state?.Login?.user);
   const { quillRef, quill } = useQuill();
-  const [files, setFiles] = useState(null);
+  const [files, setFiles] = useState([]);
+  const [saving, setSaving] = useState(false);
   const dispatch = useDispatch();
 
   const location = useLocation();
   const event = location.state?.event;
 
-  console.log(event);
-
   const [eventDetails, setEventDetails] = useState({
     eventName: event?.eventTitle || "",
-    startDate: "",
-    endDate: "",
+    startDate: event?.eventStartDate || "",
+    endDate: event?.eventEndDate || "",
     location: event?.eventLocation || "",
     eventHost: event?.eventHost || "",
     eventDescription: event?.eventDescription || "",
@@ -85,31 +80,28 @@ const EditEvent = () => {
       return date.toTimeString().split(" ")[0]; // Extract time in HH:MM:SS format
     };
 
-    const startTime = extractTime(eventDetails.startDate);
-    const endTime = extractTime(eventDetails.endDate);
-    const details = {
-      ...eventDetails,
-      eventImages: files,
-      adminId: user?.id,
-      eventStartTime: startTime,
-      eventEndTime: endTime,
-    };
+    const data = new FormData();
+    if (files[0]) data.append("image", files[0]);
+    data.append("eventTitle", eventDetails.eventName);
+    data.append("eventLocation", eventDetails.location);
+    data.append("eventHost", eventDetails.eventHost);
+    data.append("eventDescription", eventDetails.eventDescription);
+    // Dates left alone keep their saved times.
+    if (eventDetails.startDate instanceof Date) {
+      data.append("eventStartDate", eventDetails.startDate);
+      data.append("eventStartTime", extractTime(eventDetails.startDate));
+    }
+    if (eventDetails.endDate instanceof Date) {
+      data.append("eventEndDate", eventDetails.endDate);
+      data.append("eventEndTime", extractTime(eventDetails.endDate));
+    }
 
-    dispatch(addEvent(details, navigate));
+    setSaving(true);
+    await dispatch(editEvent(event.id, data, navigate));
+    setSaving(false);
   };
 
-  useEffect(() => {
-    if (event?.eventImages) {
-      setFiles([
-        {
-          source: `http://localhost:8080${event.eventImages}`,
-          options: {
-            type: "local",
-          },
-        },
-      ]);
-    }
-  }, [event?.eventImages]);
+  if (!event) return <Navigate to="/upcoming-events" />;
 
   return (
     <div className="page-content">
@@ -117,17 +109,25 @@ const EditEvent = () => {
       <Container fluid>
         <Row className="justify-content-between mb-5">
           <Col>
-            <h1>CREATE NEW EVENT</h1>
+            <h1>EDIT EVENT</h1>
           </Col>
           <Col className="text-end">
-            <Link className="btn btn-soft-dark" to="/events">
+            <Link className="btn btn-soft-dark" to="/upcoming-events">
               <i className="ri-back-line align-bottom me-1"></i> Events
             </Link>
           </Col>
         </Row>
         <Row className="justify-content-center mb-3">
           <Col lg={4}>
+            {event.eventImages && (
+              <img
+                src={event.eventImages}
+                alt={event.eventTitle}
+                className="img-fluid rounded mb-3"
+              />
+            )}
             <FilePond
+              labelIdle="Replace the image (optional)"
               files={files}
               onupdatefiles={handleAcceptedFiles}
               allowMultiple={false}
@@ -162,6 +162,7 @@ const EditEvent = () => {
                 className="form-control bg-light"
                 placeholder="Select Start Date and Time"
                 name="startDate"
+                value={eventDetails.startDate}
                 onChange={(date) => handleChange(date, "startDate")}
                 options={{ enableTime: true, dateFormat: "Y-m-d H:i" }}
               />
@@ -169,17 +170,22 @@ const EditEvent = () => {
                 className="form-control bg-light mt-3"
                 placeholder="Select End Date and Time"
                 name="endDate"
+                value={eventDetails.endDate}
                 onChange={(date) => handleChange(date, "endDate")}
-                options={{ enableTime: true, dateFormat: "Y-m-d H:i" }}
+                options={{
+                  enableTime: true,
+                  dateFormat: "Y-m-d H:i",
+                  minDate: eventDetails.startDate,
+                }}
               />
             </div>
             <div className="mt-3">
               <Label className="form-label mb-0 mx-3">Location</Label>
-              <Input
-                placeholder="Add Event Location"
-                name="location"
-                onChange={handleChange}
+              <LocationInput
                 value={eventDetails.location}
+                onChange={(location) =>
+                  setEventDetails((prev) => ({ ...prev, location }))
+                }
               />
             </div>
             <div className="mt-3">
@@ -193,7 +199,7 @@ const EditEvent = () => {
             </div>
             <div className="mt-3 mb-5">
               <Label className="form-label mb-0 mx-3">Event Description</Label>
-              <div className="snow-editor" style={{ height: 300 }}>
+              <div className="snow-editor" style={{ height: 300, marginBottom: 90 }}>
                 <div ref={quillRef} />
               </div>
             </div>
@@ -203,8 +209,9 @@ const EditEvent = () => {
               className="w-100"
               color="dark"
               outline
+              disabled={saving}
             >
-              Create Event
+              Save Changes
             </Button>
           </Col>
         </Row>

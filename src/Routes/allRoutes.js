@@ -61,7 +61,6 @@ import EcommerceProductDetail from "../pages/Ecommerce/EcommerceProducts/Ecommer
 import EcommerceAddProduct from "../pages/Ecommerce/EcommerceProducts/EcommerceAddProduct";
 import EcommerceOrders from "../pages/Ecommerce/EcommerceOrders/index";
 import EcommerceOrderDetail from "../pages/Ecommerce/EcommerceOrders/EcommerceOrderDetail";
-import EcommerceCustomers from "../pages/Ecommerce/EcommerceCustomers/index";
 import EcommerceCart from "../pages/Ecommerce/EcommerceCart";
 import EcommerceCheckout from "../pages/Ecommerce/EcommerceCheckout";
 import EcommerceSellers from "../pages/Ecommerce/EcommerceSellers/index";
@@ -248,6 +247,9 @@ import CreateEvent from "../pages/Events/CreateEvents";
 import EventDetails from "../pages/Events/EventDetails";
 import PastEvents from "../pages/Events/PastEvents";
 import EditEvent from "../pages/Events/EditEvent";
+import Appointments from "../pages/Appointments";
+import Announcements from "../pages/Announcements";
+import EventRegistrations from "../pages/Events/EventRegistrations";
 
 const authProtectedRoutes = [
   { path: "/upcoming-events", component: <Events /> },
@@ -263,7 +265,8 @@ const authProtectedRoutes = [
   { path: "/dashboard-projects", component: <DashboardProject /> },
   { path: "/dashboard-nft", component: <DashboardNFT /> },
   { path: "/dashboard-job", component: <DashboardJob /> },
-  { path: "/appointment", component: <Calendar /> },
+  { path: "/appointment", component: <Appointments /> },
+  { path: "/announcements", component: <Announcements /> },
   { path: "/apps-calendar-month-grid", component: <MonthGrid /> },
   { path: "/apps-ecommerce-products", component: <EcommerceProducts /> },
   {
@@ -280,7 +283,7 @@ const authProtectedRoutes = [
     path: "/apps-ecommerce-order-details",
     component: <EcommerceOrderDetail />,
   },
-  { path: "/event-registrations/:eventId", component: <EcommerceCustomers /> },
+  { path: "/event-registrations/:eventId", component: <EventRegistrations /> },
   { path: "/apps-ecommerce-cart", component: <EcommerceCart /> },
   { path: "/apps-ecommerce-checkout", component: <EcommerceCheckout /> },
   { path: "/apps-ecommerce-sellers", component: <EcommerceSellers /> },

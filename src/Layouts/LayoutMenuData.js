@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { getMe } from "../helpers/fakebackend_helper";
 import { useNavigate } from "react-router-dom";
-import { createSelector } from "reselect";
 
 const Navdata = () => {
   const history = useNavigate();
@@ -137,12 +136,17 @@ const Navdata = () => {
     isMultiLevel,
   ]);
 
-  const selectDashboardData = createSelector(
-    (state) => state.Login.user,
-    (user) => user
-  );
   // Inside your component
-  const profileData = useSelector(selectDashboardData);
+  const [access, setAccess] = useState(null);
+
+  useEffect(() => {
+    getMe()
+      .then((response) => setAccess(response.data))
+      .catch(() => setAccess(null));
+  }, []);
+
+  const can = (permission) =>
+    access?.isSuper || access?.permissions?.includes(permission);
 
   const menuItems = [
     // {
@@ -153,19 +157,29 @@ const Navdata = () => {
       id: "dashboard",
       label: "Dashboard",
       icon: "ri-dashboard-2-line",
-      link: "/#",
+      link: "/dashboard",
       stateVariables: isDashboard,
     },
-    profileData?.role === "SUPER"
+    can("appointments.view")
       ? {
           id: "dashboard",
-          label: "Appointment",
+          label: "Appointments",
           icon: "ri-calendar-event-line",
           link: "/appointment",
           stateVariables: isDashboard,
         }
       : "",
-    {
+    can("announcements.send")
+      ? {
+          id: "dashboard",
+          label: "Announcements",
+          icon: "ri-megaphone-line",
+          link: "/announcements",
+          stateVariables: isDashboard,
+        }
+      : "",
+    can("events.view")
+      ? {
       id: "dashboard",
       label: "Events",
       icon: "las la-calendar",
@@ -197,9 +211,10 @@ const Navdata = () => {
           parentId: "dashboard",
         },
       ],
-    },
+    }
+      : "",
 
-    profileData?.role === "SUPER"
+    can("admins.view")
       ? {
           id: "dashboard",
           label: "Settings",

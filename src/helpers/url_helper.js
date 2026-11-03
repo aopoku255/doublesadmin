@@ -15,6 +15,7 @@ export const POST_EDIT_PROFILE = "/user";
 // Calendar
 export const GET_EVENTS = "/events";
 export const ADD_EVENTS = "/event/create-event";
+export const EDIT_EVENT = "/event/admin/events";
 export const GET_ALL_EVENTS = "/event/get-upcoming-events";
 export const GET_PAST_EVENTS = "/event/get-past-events";
 export const GET_EVENT_SPEAKERS = "/admin/speakers";
@@ -30,7 +31,7 @@ export const GET_DIRECT_CONTACT = "/chat";
 export const GET_DIRECTS_CONTACT = "/questions/allquestions";
 export const GET_MESSAGES = "/messages";
 export const GET_MESAGES = "/questions";
-export const ADD_MESSAGE = "add/message";
+export const ADD_MESSAGE = "/questions/question";
 export const GET_CHANNELS = "/channels";
 export const DELETE_MESSAGE = "delete/message";
 
@@ -204,6 +205,12 @@ export const DELETE_PROJECT = "/delete/project";
 // Pages > Team
 export const GET_TEAMDATA = "/teamData";
 export const GET_ADMINS = "/admin/get-admins";
+export const GET_ROLES = "/admin/roles";
+export const GET_ME = "/admin/me";
+export const GET_DASHBOARD = "/admin/dashboard";
+export const APPOINTMENT_SLOTS = "/appointments/admin/slots";
+export const APPOINTMENTS = "/appointments/admin";
+export const ANNOUNCEMENTS = "/admin/announcements";
 export const ADD_ADMINS = "/admin/signup";
 export const DELETE_TEAMDATA = "/delete/teamData";
 export const ADD_NEW_TEAMDATA = "/add/teamData";

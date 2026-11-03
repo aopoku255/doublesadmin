@@ -96,6 +96,15 @@ export const addEvents = (data) =>
     headers: { "Content-Type": "multipart/form-data" },
   });
 
+export const getEventById = (id) => api.get(`/event/get-events/${id}`);
+export const getAdminEvents = () => api.get("/event/admin/events");
+export const removeEvent = (id) => api.delete(`/event/admin/events/${id}`);
+export const getAttendeePreviews = (eventIds) =>
+  api.get("/event/admin/attendees", { eventIds: eventIds.join(",") });
+
+export const editEvent = (id, data) =>
+  api.update(`${url.EDIT_EVENT}/${id}`, data);
+
 // update Event
 export const updateEvent = (event) => api.put(url.UPDATE_EVENT, event);
 
@@ -114,9 +123,11 @@ export const getMessages = (roomId) =>
   api.get(`${url.GET_MESSAGES}/${roomId}`, { params: { roomId } });
 
 export const getMesages = () => api.get(`${url.GET_MESAGES}`);
+export const hideQuestion = (id) => api.update(`/questions/${id}/hide`);
 
 // add Message
-export const addMessage = (message) => api.create(url.ADD_MESSAGE, message);
+export const addMessage = ({ roomId, message }) =>
+  api.create(`${url.ADD_MESSAGE}/${roomId}`, { question: message });
 
 // add Message
 export const deleteMessage = (message) =>
@@ -406,6 +417,23 @@ export const deleteProjectList = (project) =>
 // Pages > Team
 export const getTeamData = (team) => api.get(url.GET_TEAMDATA, team);
 export const getAdmin = () => api.get(url.GET_ADMINS);
+export const getRoles = () => api.get(url.GET_ROLES);
+export const getMe = () => api.get(url.GET_ME);
+export const getDashboard = () => api.get(url.GET_DASHBOARD);
+export const getAppointmentSlots = () => api.get(url.APPOINTMENT_SLOTS);
+export const createAppointmentSlot = (slot) =>
+  api.create(url.APPOINTMENT_SLOTS, slot);
+export const removeAppointmentSlot = (id) =>
+  api.delete(`${url.APPOINTMENT_SLOTS}/${id}`);
+export const getAppointments = (status) =>
+  api.get(url.APPOINTMENTS, status ? { status, limit: 100 } : { limit: 100 });
+export const setAppointmentStatus = (id, status) =>
+  api.update(`${url.APPOINTMENTS}/${id}/status`, { status });
+export const getAnnouncements = () => api.get(url.ANNOUNCEMENTS);
+export const getAnnouncementAudience = () =>
+  api.get(`${url.ANNOUNCEMENTS}/audience`);
+export const sendAnnouncement = (announcement) =>
+  api.create(url.ANNOUNCEMENTS, announcement);
 export const addAdmin = (team) => api.create(url.ADD_ADMINS, team);
 export const deleteTeamData = (team) =>
   api.delete(url.DELETE_TEAMDATA, { headers: { team } });

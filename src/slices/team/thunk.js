@@ -46,11 +46,11 @@ export const addTeamData = createAsyncThunk(
 
 export const addAdmin = createAsyncThunk("team/addAdmin", async (team) => {
   try {
-    const response = addAdminApi(team);
-    toast.success("Team Data Added Successfully", { autoClose: 3000 });
+    const response = await addAdminApi(team);
+    toast.success("Admin Added Successfully", { autoClose: 3000 });
     return response;
   } catch (error) {
-    toast.error("Team Data Added Failed", { autoClose: 3000 });
+    toast.error(`Admin not added: ${error}`, { autoClose: 3000 });
     return error;
   }
 });
